@@ -1,22 +1,30 @@
+# This version does NOT have an explicit build step; it pushes the image 
+# at the end of the build, using the 'images' tag
+
 steps:
+  # build the image 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build','.','--tag=gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
 
+  # create a namespace for this pod
+  # (just to isolate it from other deployments)
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['create','namespace','$BUILD_ID']
 
+  # deploy the container. This command will succeed, but...
 - name: 'gcr.io/cloud-builders/kubectl'
   args: [
     'run', '--namespace=$BUILD_ID',
     'nginx-$BUILD_ID','--image=gcr.io/$PROJECT_ID/nginx/$BUILD_ID',
     ]
 
+  # ...when we query for running pods, we'll see no nginx pod
+  # (because the image wasn't available)
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['get','pods','--namespace=$BUILD_ID']
-
-images: ['gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
 
 options:
   env:
     - CLOUDSDK_COMPUTE_ZONE=us-central1-c
     - CLOUDSDK_CONTAINER_CLUSTER=k8s-sandbox
+images: ['gcr.io/$PROJECT_ID/nginx/$BUILD_ID']

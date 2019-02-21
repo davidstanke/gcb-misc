@@ -1,19 +1,27 @@
+# This version has an explicit push step, to make the image available to k8s
+
 steps:
+  # build image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build','.','--tag=gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
 
+  # push to registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push','gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
 
+  # create a namespace for this pod
+  # (just to isolate it from other deployments)
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['create','namespace','$BUILD_ID']
 
+# deploy the container
 - name: 'gcr.io/cloud-builders/kubectl'
   args: [
     'run', '--namespace=$BUILD_ID',
     'nginx-$BUILD_ID','--image=gcr.io/$PROJECT_ID/nginx/$BUILD_ID',
     ]
 
+# query for running pods... there will be a running nginx pod
 - name: 'gcr.io/cloud-builders/kubectl'
   args: ['get','pods','--namespace=$BUILD_ID']
 
