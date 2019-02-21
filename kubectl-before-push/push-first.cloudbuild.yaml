@@ -1,0 +1,23 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','.','--tag=gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','gcr.io/$PROJECT_ID/nginx/$BUILD_ID']
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['create','namespace','$BUILD_ID']
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: [
+    'run', '--namespace=$BUILD_ID',
+    'nginx-$BUILD_ID','--image=gcr.io/$PROJECT_ID/nginx/$BUILD_ID',
+    ]
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['get','pods','--namespace=$BUILD_ID']
+
+options:
+  env:
+    - CLOUDSDK_COMPUTE_ZONE=us-central1-c
+    - CLOUDSDK_CONTAINER_CLUSTER=k8s-sandbox
