@@ -1,0 +1,32 @@
+# Persist any number of values
+
+steps:
+- id: "Store Values"
+  name: gcr.io/cloud-builders/curl
+  entrypoint: /bin/bash
+  args:
+    - -c 
+    - |
+      # store multiple values as environment variables
+      # name all values with a common prefix (we'll use "build_")
+      export build_firstname="Robin"
+      export build_lastname="Babbage"
+      export build_cookie="Snickerdoodle"
+      
+      # write all "build_" variables to the persistent volume "/workspace"
+      env | grep "^build_" > /workspace/env_vars
+
+# move on to the next step; everything in the environment is discarded,
+# EXCEPT items on the "/workspace" mount
+
+- id: "Read Values"
+  name: gcr.io/cloud-builders/curl
+  entrypoint: /bin/bash
+  args:
+    - -c
+    - |
+      # Rehydrate evironment variables from disk
+      source /workspace/env_vars
+      
+      # These values are now available in the environment of this step
+      echo "My name is $build_firstname $build_lastname. My favorite cookie is the $build_cookie."

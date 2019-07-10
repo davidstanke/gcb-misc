@@ -1,0 +1,24 @@
+steps:
+- id: "Store Values"
+  name: gcr.io/cloud-builders/curl
+  entrypoint: /bin/bash
+  args:
+    - -c 
+    - |
+      # Save a value to persistent volume mount: "/workspace"
+      echo "First Value" > /workspace/1.txt &&
+      # Save another
+      expr 1 + 1 > /workspace/2.txt
+
+# move on to the next step; everything in the environment is discarded,
+# EXCEPT items on the "/workspace" mount
+
+- id: "Read Values"
+  name: gcr.io/cloud-builders/curl
+  entrypoint: /bin/bash
+  args:
+    - -c
+    - |
+      # Read from "/workspace"
+      echo "First we saved " $(cat /workspace/1.txt) &&
+      echo "Then we saved " $(cat /workspace/2.txt)
