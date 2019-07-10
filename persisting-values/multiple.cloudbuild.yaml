@@ -1,5 +1,3 @@
-# Persist any number of values
-
 steps:
 - id: "Store Values"
   name: gcr.io/cloud-builders/curl
