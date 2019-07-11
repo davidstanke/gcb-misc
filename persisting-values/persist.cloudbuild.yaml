@@ -14,7 +14,7 @@ steps:
 # EXCEPT items on the "/workspace" mount
 
 - id: "Read Values"
-  name: gcr.io/cloud-builders/curl
+  name: gcr.io/cloud-builders/git
   entrypoint: /bin/bash
   args:
     - -c
